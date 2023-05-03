@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Snake Game</title>
+	<style>
+		canvas {
+			background-color: #eee;
+			border: 1px solid #999;
+		}
+	</style>
+</head>
+<body>
+	<canvas id="gameCanvas" width="400" height="400"></canvas>
+	
+	<script>
+		// Get the canvas element
+var canvas = document.getElementById("gameCanvas");
+
+// Set the canvas context to 2D
+var ctx = canvas.getContext("2d");
+
+// Set the starting position and length of the snake
+var snake = {
+  x: 10,
+  y: 10,
+  cells: []
+};
+
+// Set the starting position of the food
+var food = {
+  x: 0,
+  y: 0
+};
+
+// Set the direction of the snake
+var direction = "right";
+
+// Set the width and height of each cell
+var cellSize = 10;
+
+// Set the initial score
+var score = 0;
+
+// Set the game loop interval
+var interval = setInterval(gameLoop, 100);
+
+// Generate a random position for the food
+function generateFoodPosition() {
+  food.x = Math.floor(Math.random() * (canvas.width / cellSize)) * cellSize;
+  food.y = Math.floor(Math.random() * (canvas.height / cellSize)) * cellSize;
+}
+
+// Move the snake
+function moveSnake() {
+  // Add the current position of the snake to the beginning of the cells array
+  snake.cells.unshift({ x: snake.x, y: snake.y });
+
+  // Remove the last cell of the snake
+  if (snake.cells.length > score + 1) {
+    snake.cells.pop();
+  }
+
+  // Move the snake in the current direction
+  if (direction === "right") {
+    snake.x += cellSize;
+  } else if (direction === "left") {
+    snake.x -= cellSize;
+  } else if (direction === "up") {
+    snake.y -= cellSize;
+  } else if (direction === "down") {
+    snake.y += cellSize;
+  }
+}
+
+// Check for collision with the food
+function checkFoodCollision() {
+  if (snake.x === food.x && snake.y === food.y) {
+    // Add a new cell to the snake
+    snake.cells.push({});
+
+    // Increase the score
+    score += 10;
+
+    // Generate a new position for the food
+    generateFoodPosition();
+  }
+}
+
+// Check for collision with the walls
+function checkWallCollision() {
+  if (snake.x < 0 || snake.x >= canvas.width || snake.y < 0 || snake.y >= canvas.height) {
+    // End the game
+    clearInterval(interval);
+    alert("Game over! Your score: " + score);
+  }
+}
+
+// Check for collision with the snake's own body
+function checkSelfCollision() {
+  for (var i = 1; i < snake.cells.length; i++) {
+    if (snake.x === snake.cells[i].x && snake.y === snake.cells[i].y) {
+      // End the game
+      clearInterval(interval);
+      alert("Game over! Your score: " + score);
+    }
+  }
+}
+
+// Render the game on the canvas
+function render() {
+  // Clear the canvas
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Draw the snake
+  ctx.fillStyle = "#000";
+  for (var i = 0; i < snake.cells.length; i++) {
+    ctx.fillRect(snake.cells[i].x, snake.cells[i].y, cellSize, cellSize);
+  }
+
+  // Draw the food
+  ctx.fillStyle = "#f00";
+  ctx.fillRect(food.x, food.y, cellSize, cellSize);
+
+// Draw the score
+ctx.fillStyle = "#000";
+ctx.font = "bold 16px Arial";
+ctx.fillText("Score: " + score, 10, canvas.height - 10);
+}
+
+// Update the game state
+function update() {
+moveSnake();
+checkFoodCollision();
+checkWallCollision();
+checkSelfCollision();
+}
+
+// The game loop
+function gameLoop() {
+update();
+render();
+}
+
+// Add event listeners for keyboard input
+document.addEventListener("keydown", function(event) {
+if (event.keyCode === 37 && direction !== "right") {
+direction = "left";
+} else if (event.keyCode === 38 && direction !== "down") {
+direction = "up";
+} else if (event.keyCode === 39 && direction !== "left") {
+direction = "right";
+} else if (event.keyCode === 40 && direction !== "up") {
+direction = "down";
+}
+});
+
+// Start the game
+generateFoodPosition();
+	</script>
+</body>
+</html>
